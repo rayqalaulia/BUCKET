@@ -11,7 +11,6 @@ MONGODB_URI = os.environ.get("MONGODB_URI")
 DB_NAME =  os.environ.get("DB_NAME")
 
 client = MongoClient(MONGODB_URI)
-
 db = client[DB_NAME]
 
 app = Flask(__name__)
@@ -20,50 +19,24 @@ app = Flask(__name__)
 def home():
    return render_template('index.html')
 
-@app.route("/bucket", methods=["POST"])
-def bucket_post():
-    bucket_receive = request.form['bucket_give']
-    count = db.bucket.count_documents({})
-    num = count + 1
+@app.route("/mars", methods=["POST"])
+def web_mars_post():
+    # sample_receive = request.form['sample_give']
+    name_receive = request.form['name_give']
+    address_receive = request.form['address_give']
+    size_receive = request.form['size_give']
     doc = {
-        'num' : num,
-        'bucket' : bucket_receive,
-        'done' : 0,
-        'remove' : 0
+        'name': name_receive,
+        'address': address_receive,
+        'size': size_receive,
     }
-    db.bucket.insert_one(doc)
-    return jsonify({'msg': 'Data Saved!'})
+    db.orders.insert_one(doc)
+    return jsonify({'msg': 'complete!'})
 
-@app.route("/bucket/done", methods=["POST"])
-def bucket_done():
-    num_receive = request.form['num_give']
-    db.bucket.update_one(
-        {'num' : int(num_receive)},
-        {'$set' : {'done':1}}
-    )
-    return jsonify({'msg': 'Update Done!'})
-
-@app.route("/bucket/remove", methods=["POST"])
-def bucket_remove():
-    num_receive = request.form["num_give"]
-    db.bucket.delete_one({'num': int(num_receive)})
-    return jsonify({'msg': 'Delete done!'})
-
-@app.route("/bucket", methods=["GET"])
-def bucket_get():
-    buckets_list = list(db.bucket.find({}, {'_id' : False}))
-    return jsonify({'buckets': buckets_list})
+@app.route("/mars", methods=["GET"])
+def web_mars_get():
+    orders_list = list(db.orders.find({}, {'_id': False}))
+    return jsonify({'orders': orders_list})
 
 if __name__ == '__main__':
    app.run('0.0.0.0', port=5000, debug=True)
-   
-def bucket_remove():
-    num_delete = request.form['num_give']
-    db.bucket.delete_one({'num': int(num_delete)})
-    return jsonify({'msg': 'Gwenchana'})
-
-@app.route("/defind", methods=["POST"])
-def bucket_defind():
-    num_defind = request.form["num_give"]
-    db.bucket.update_one({'num': int(num_defind)})
-    return jsonify({'msg': 'Defind progres is done!'})
